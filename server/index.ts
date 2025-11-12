@@ -20,6 +20,44 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
+  // Backend status endpoint
+  app.get("/api/backend-status", async (_req, res) => {
+    try {
+      const pythonBackendUrl = process.env.PYTHON_BACKEND_URL || "http://localhost:5000";
+
+      try {
+        const healthResponse = await fetch(`${pythonBackendUrl}/health`, {
+          method: "GET",
+          signal: AbortSignal.timeout(5000), // 5 second timeout
+        });
+
+        if (healthResponse.ok) {
+          const healthData = await healthResponse.json();
+          return res.json({
+            status: "ok",
+            expressBackend: "ready",
+            pythonBackend: "connected",
+            models: healthData,
+          });
+        }
+      } catch {
+        // Python backend not available
+      }
+
+      res.json({
+        status: "ok",
+        expressBackend: "ready",
+        pythonBackend: "unavailable",
+        fallback: "using JavaScript implementation",
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: "Failed to check backend status",
+      });
+    }
+  });
+
   // Evaluation API
   app.post("/api/evaluate", handleEvaluate);
 
