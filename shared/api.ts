@@ -10,3 +10,21 @@
 export interface DemoResponse {
   message: string;
 }
+
+/**
+ * Request type for answer evaluation
+ */
+export interface EvaluationRequest {
+  question: string;
+  modelAnswer: string;
+  studentAnswer: string;
+}
+
+/**
+ * Response type for answer evaluation
+ */
+export interface EvaluationResponse {
+  score: number;
+  feedback: string;
+  similarity: number;
+}
