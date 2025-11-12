@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EvaluationRequest, EvaluationResponse } from "@shared/api";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,8 @@ import {
   CheckCircle2,
   Loader2,
   AlertTriangle,
+  Zap,
+  Server,
 } from "lucide-react";
 
 interface BackendStatus {
