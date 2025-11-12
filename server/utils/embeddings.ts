@@ -3,7 +3,8 @@
  * Uses HuggingFace Inference API (free tier)
  */
 
-const HF_API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2";
+const HF_API_URL =
+  "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2";
 const HF_API_KEY = process.env.HF_API_KEY;
 
 /**
@@ -110,7 +111,9 @@ const STOP_WORDS = new Set([
  */
 function getFallbackEmbedding(text: string): number[] {
   const tokens = tokenize(text);
-  const contentTokens = tokens.filter((t) => !STOP_WORDS.has(t) && t.length > 2);
+  const contentTokens = tokens.filter(
+    (t) => !STOP_WORDS.has(t) && t.length > 2,
+  );
 
   // Create a feature vector
   const embedding: number[] = [];
@@ -137,7 +140,9 @@ function getFallbackEmbedding(text: string): number[] {
 
   // Normalize word features
   const maxFeature = Math.max(...wordFeatures, 1);
-  const normalizedWordFeatures = wordFeatures.map((f) => Math.min(f / maxFeature, 1));
+  const normalizedWordFeatures = wordFeatures.map((f) =>
+    Math.min(f / maxFeature, 1),
+  );
 
   return [...embedding, ...normalizedWordFeatures];
 }
@@ -165,7 +170,7 @@ async function getEmbedding(text: string): Promise<number[]> {
 
     if (!response.ok) {
       console.warn(
-        `HuggingFace API error: ${response.statusText}, using fallback`
+        `HuggingFace API error: ${response.statusText}, using fallback`,
       );
       return getFallbackEmbedding(text);
     }
@@ -259,7 +264,7 @@ function extractKeywords(text: string): string[] {
     .toLowerCase()
     .split(/\s+/)
     .filter(
-      (word) => word.length > 3 && !stopWords.has(word.replace(/[^a-z]/g, ""))
+      (word) => word.length > 3 && !stopWords.has(word.replace(/[^a-z]/g, "")),
     );
 }
 
@@ -269,7 +274,7 @@ function extractKeywords(text: string): string[] {
 function generateFeedback(
   similarity: number,
   modelKeywords: string[],
-  studentKeywords: string[]
+  studentKeywords: string[],
 ): string {
   const score = Math.round(similarity * 100);
 

@@ -66,6 +66,7 @@ pnpm start
 ## Deployment
 
 The app is production-ready and can be deployed to:
+
 - **Netlify**: Using the Netlify MCP integration
 - **Vercel**: Using the Vercel MCP integration
 - **Any Node.js compatible platform**: Run `pnpm build && pnpm start`
@@ -81,6 +82,7 @@ The app is production-ready and can be deployed to:
 **Student Answer**: "Operating system helps to run computer smoothly. It controls memory and processor and allows the user to manage files and run programs."
 
 **Expected Output**:
+
 - Score: ~4.5/5
 - Similarity: ~89%
 - Feedback: "Good understanding of OS functions like memory and process management. Missing mention of I/O control and services. Overall, a well-structured answer."
@@ -94,6 +96,7 @@ The app is production-ready and can be deployed to:
 **Student Answer**: "Photosynthesis happens when plants make food using light and water. Oxygen is also produced."
 
 **Expected Output**:
+
 - Score: ~3/5
 - Similarity: ~60%
 - Feedback: "Basic concept is correct but lacks details like carbon dioxide, glucose, and chloroplast. Try to include the chemical process explanation."
