@@ -10,6 +10,15 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
+interface BackendStatus {
+  pythonBackend: "connected" | "unavailable";
+  expressBackend: "ready" | "error";
+  models?: {
+    embeddings_ready: boolean;
+    llm_ready: boolean;
+  };
+}
+
 export default function EvaluationForm() {
   const [question, setQuestion] = useState("");
   const [modelAnswer, setModelAnswer] = useState("");
@@ -17,6 +26,27 @@ export default function EvaluationForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<EvaluationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [backendStatus, setBackendStatus] = useState<BackendStatus | null>(null);
+
+  // Check backend status on component mount
+  useEffect(() => {
+    const checkBackendStatus = async () => {
+      try {
+        const response = await fetch("/api/backend-status");
+        if (response.ok) {
+          const data = (await response.json()) as BackendStatus;
+          setBackendStatus(data);
+        }
+      } catch (err) {
+        console.error("Failed to check backend status:", err);
+      }
+    };
+
+    checkBackendStatus();
+    // Re-check every 30 seconds
+    const interval = setInterval(checkBackendStatus, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +111,32 @@ export default function EvaluationForm() {
 
   return (
     <div className="w-full max-w-5xl mx-auto">
+      {/* Backend Status Indicator */}
+      {backendStatus && (
+        <div className="mb-6 p-4 rounded-lg border bg-blue-50 border-blue-200">
+          <div className="flex items-center gap-3 text-sm">
+            <Server size={18} className="text-blue-600 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="font-medium text-blue-900">
+                {backendStatus.pythonBackend === "connected" ? (
+                  <>
+                    <Zap className="inline mr-2" size={14} />
+                    Enhanced AI Mode
+                  </>
+                ) : (
+                  <>JavaScript Fallback Mode</>
+                )}
+              </p>
+              <p className="text-xs text-blue-700 mt-1">
+                {backendStatus.pythonBackend === "connected"
+                  ? "Using Python ML models for superior semantic analysis"
+                  : "Using JavaScript implementation for evaluation"}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Question Field */}
         <div className="space-y-2">
