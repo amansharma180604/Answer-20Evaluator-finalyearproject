@@ -7,76 +7,139 @@ const HF_API_URL = "https://api-inference.huggingface.co/models/sentence-transfo
 const HF_API_KEY = process.env.HF_API_KEY;
 
 /**
- * Simple fallback embedding using text features
- * This provides a basic semantic similarity without API calls
+ * Simple tokenization and normalization
+ */
+function tokenize(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, " ")
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
+}
+
+/**
+ * Common English stop words
+ */
+const STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+  "be",
+  "been",
+  "before",
+  "being",
+  "but",
+  "by",
+  "for",
+  "from",
+  "had",
+  "has",
+  "have",
+  "he",
+  "her",
+  "here",
+  "hers",
+  "him",
+  "his",
+  "how",
+  "i",
+  "if",
+  "in",
+  "into",
+  "is",
+  "it",
+  "its",
+  "just",
+  "me",
+  "my",
+  "of",
+  "on",
+  "or",
+  "other",
+  "our",
+  "ours",
+  "out",
+  "over",
+  "own",
+  "s",
+  "she",
+  "so",
+  "some",
+  "such",
+  "t",
+  "than",
+  "that",
+  "the",
+  "their",
+  "theirs",
+  "them",
+  "then",
+  "there",
+  "these",
+  "they",
+  "this",
+  "to",
+  "too",
+  "under",
+  "until",
+  "up",
+  "very",
+  "was",
+  "we",
+  "were",
+  "what",
+  "when",
+  "where",
+  "which",
+  "while",
+  "who",
+  "whom",
+  "why",
+  "with",
+  "you",
+  "your",
+  "yours",
+]);
+
+/**
+ * Simple embedding using word features (fallback for no API key)
+ * Creates a vector representation based on word frequencies
  */
 function getFallbackEmbedding(text: string): number[] {
-  // Normalize text
-  const normalized = text.toLowerCase().trim();
+  const tokens = tokenize(text);
+  const contentTokens = tokens.filter((t) => !STOP_WORDS.has(t) && t.length > 2);
 
-  // Extract features from the text
-  const features = {
-    length: normalized.length / 100, // Normalize length
-    wordCount: normalized.split(/\s+/).length / 10,
-    sentenceCount: (normalized.match(/[.!?]/g) || []).length,
-    questionCount: (normalized.match(/\?/g) || []).length,
-    uniqueWords: new Set(normalized.split(/\s+/)).size / 10,
-  };
-
-  // Create a simple embedding vector based on text characteristics
-  // This is a very basic approach for demonstration/fallback
-  const words = normalized.split(/\s+/);
-  const commonWords = new Set([
-    "the",
-    "is",
-    "at",
-    "which",
-    "on",
-    "and",
-    "a",
-    "an",
-    "as",
-    "are",
-    "was",
-    "were",
-    "be",
-    "been",
-    "being",
-    "have",
-    "has",
-    "had",
-  ]);
-
-  const contentWords = words.filter(
-    (w) =>
-      w.length > 2 &&
-      !commonWords.has(w.replace(/[^a-z]/g, "")) &&
-      /[a-z]/.test(w)
-  );
-
-  // Create a simple embedding from word features
+  // Create a feature vector
   const embedding: number[] = [];
 
-  // Add basic text statistics
-  embedding.push(features.length);
-  embedding.push(features.wordCount);
-  embedding.push(features.sentenceCount);
-  embedding.push(features.questionCount);
-  embedding.push(features.uniqueWords);
+  // Add basic text length features
+  embedding.push(Math.min(tokens.length / 100, 1)); // Normalized token count
+  embedding.push(Math.min(contentTokens.length / 50, 1)); // Normalized content token count
+  embedding.push(tokens.length > 0 ? contentTokens.length / tokens.length : 0); // Content ratio
 
-  // Add hash-based features for content words
-  for (let i = 0; i < 10; i++) {
+  // Create word-based features using simple hashing
+  // Use first 256 dimensions for word presence
+  const wordFeatures = new Array(256).fill(0);
+
+  for (const token of contentTokens) {
+    // Simple hash function
     let hash = 0;
-    for (let j = i * 5; j < (i + 1) * 5 && j < contentWords.length; j++) {
-      const word = contentWords[j];
-      for (let k = 0; k < word.length; k++) {
-        hash += word.charCodeAt(k) * (k + 1);
-      }
+    for (let i = 0; i < token.length; i++) {
+      hash = (hash << 5) - hash + token.charCodeAt(i);
+      hash = hash & hash; // Convert to 32-bit integer
     }
-    embedding.push((hash % 100) / 100);
+    const index = Math.abs(hash) % 256;
+    wordFeatures[index] += 1 / Math.max(contentTokens.length, 1);
   }
 
-  return embedding;
+  // Normalize word features
+  const maxFeature = Math.max(...wordFeatures, 1);
+  const normalizedWordFeatures = wordFeatures.map((f) => Math.min(f / maxFeature, 1));
+
+  return [...embedding, ...normalizedWordFeatures];
 }
 
 /**
