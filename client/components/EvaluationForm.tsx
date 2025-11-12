@@ -80,9 +80,7 @@ export default function EvaluationForm() {
       setResult(data);
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : "An error occurred during evaluation",
+        err instanceof Error ? err.message : "An error occurred during evaluation"
       );
     } finally {
       setLoading(false);
@@ -247,9 +245,7 @@ export default function EvaluationForm() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-gray-600 font-medium mb-2">Score</p>
-                  <div
-                    className={`text-5xl font-bold ${getScoreColor(result.score)}`}
-                  >
+                  <div className={`text-5xl font-bold ${getScoreColor(result.score)}`}>
                     {result.score}
                     <span className="text-2xl text-gray-500 font-normal ml-1">
                       / 5
@@ -268,10 +264,7 @@ export default function EvaluationForm() {
             {/* Feedback Card */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="flex items-start gap-3 mb-3">
-                <AlertCircle
-                  className="text-blue-600 flex-shrink-0 mt-1"
-                  size={20}
-                />
+                <AlertCircle className="text-blue-600 flex-shrink-0 mt-1" size={20} />
                 <p className="font-semibold text-gray-900">Feedback</p>
               </div>
               <p className="text-gray-700 leading-relaxed">{result.feedback}</p>
