@@ -25,3 +25,36 @@ dist-ssr
 
 .config/
 !.env
+
+# Python
+python-backend/venv/
+python-backend/env/
+python-backend/__pycache__/
+python-backend/*.pyc
+python-backend/.Python
+python-backend/build/
+python-backend/develop-eggs/
+python-backend/dist/
+python-backend/downloads/
+python-backend/eggs/
+python-backend/.eggs/
+python-backend/lib/
+python-backend/lib64/
+python-backend/parts/
+python-backend/sdist/
+python-backend/var/
+python-backend/wheels/
+python-backend/*.egg-info/
+python-backend/.installed.cfg
+python-backend/*.egg
+python-backend/.pytest_cache/
+python-backend/.coverage
+python-backend/htmlcov/
+python-backend/*.tmp
+python-backend/*.temp
+python-backend/.env
+python-backend/.env.local
+
+# Models cache
+python-backend/.cache/
+python-backend/models/
